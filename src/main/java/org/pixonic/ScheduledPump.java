@@ -13,8 +13,10 @@ public class ScheduledPump extends Thread {
     public ScheduledPump(ScheduledQueue queue, ExecutorService executor) {
         this.queue = queue;
         this.executor = executor;
-        setName("Pump thread");
-        setDaemon(false);
+
+        this.setName("Pump thread");
+        this.setDaemon(false);
+        this.setPriority(Thread.NORM_PRIORITY);
     }
 
     public void shutdown() throws InterruptedException {

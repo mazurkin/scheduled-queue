@@ -6,7 +6,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class ScheduledExecutorImpl implements ScheduledExecutor {
 
@@ -18,7 +18,7 @@ public class ScheduledExecutorImpl implements ScheduledExecutor {
 
     private static final int QUEUE_CAPACITY = 1000;
 
-    private final AtomicInteger sequence;
+    private final AtomicLong sequence;
 
     private final ExecutorService executorService;
 
@@ -29,7 +29,7 @@ public class ScheduledExecutorImpl implements ScheduledExecutor {
     private volatile boolean shutdowned;
 
     public ScheduledExecutorImpl() {
-        this.sequence = new AtomicInteger(0);
+        this.sequence = new AtomicLong(0);
 
         this.executorService = new ThreadPoolExecutor(NUM_CORE_THREADS, NUM_MAX_THREADS, 1, TimeUnit.MINUTES,
                 new ArrayBlockingQueue<>(QUEUE_CAPACITY), new ThreadPoolExecutor.CallerRunsPolicy());
@@ -61,8 +61,11 @@ public class ScheduledExecutorImpl implements ScheduledExecutor {
             throw new IllegalStateException("Executor is shutting down");
         }
 
-        ScheduledEntry entry = new ScheduledEntry(date.getTime(), callable,
-                sequence.incrementAndGet());
+        // Поскольку в ТЗ сказано что мы должны сохранять порядок элементов с одинаковой датой - нам придется
+        // ввести еще и искусственный монотонно возрастающий индекс элемента
+        long index = sequence.incrementAndGet();
+
+        ScheduledEntry entry = new ScheduledEntry(date.getTime(), callable, index);
 
         queue.put(entry);
     }

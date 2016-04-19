@@ -2,19 +2,15 @@ package org.pixonic;
 
 import java.util.concurrent.Callable;
 
-public final class ScheduledEntry implements Comparable<ScheduledEntry> {
+public final class ScheduledEntry {
 
     private final long moment;
 
     private final Callable<?> callable;
 
-    /**
-     * Поскольку в ТЗ сказано что мы должны сохранять порядок элементов с одинаковой датой - нам придется
-     * ввести еще и искусственный монотонно возрастающий индекс элемента
-     */
-    private final int index;
+    private final long index;
 
-    public ScheduledEntry(long moment, Callable<?> callable, int index) {
+    public ScheduledEntry(long moment, Callable<?> callable, long index) {
         this.moment = moment;
         this.callable = callable;
         this.index = index;
@@ -28,17 +24,8 @@ public final class ScheduledEntry implements Comparable<ScheduledEntry> {
         return callable;
     }
 
-    public int getIndex() {
+    public long getIndex() {
         return index;
     }
 
-    public int compareTo(ScheduledEntry that) {
-        int r = Long.compare(this.moment, that.moment);
-
-        if (r == 0) {
-            r = Integer.compare(this.index, that.index);
-        }
-
-        return r;
-    }
 }
